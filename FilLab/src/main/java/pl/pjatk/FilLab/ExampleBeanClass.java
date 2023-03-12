@@ -7,6 +7,6 @@ import org.springframework.context.annotation.Configuration;
 public class ExampleBeanClass {
     @Bean
     public Car exampleBean(){
-        return new Car();
+        return new Car("beanName");
     }
 }
