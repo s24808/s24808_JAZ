@@ -1,10 +1,10 @@
 package pl.pjatk.FilLab;
 
 public class Car {
-    String name;
+    private String name;
 
-    public Car() {
-        this.name=getName();
+    public Car(name) {
+        this.name=name();
     }
 
     public String getName() {
