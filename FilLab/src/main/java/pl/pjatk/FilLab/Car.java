@@ -5,6 +5,7 @@ public class Car {
 
     public Car(name) {
         this.name=name();
+        System.out.println("Bean is created here");
     }
 
     public String getName() {
