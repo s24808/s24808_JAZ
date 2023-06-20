@@ -69,3 +69,6 @@ public class FilLabApplication {
 
 	}
 }
+
+//apllication.properties
+my.custom.property=Hello from application properties
