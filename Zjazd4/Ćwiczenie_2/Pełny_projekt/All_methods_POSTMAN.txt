@@ -1,0 +1,42 @@
+Wszystkie zapytania z wykładu:
+
+GET:
+Przykład: http://localhost:8080/test/hello
+Odpowiedź: "Hello World"
+
+GET:
+Przykład: http://localhost:8080/test/model
+Odpowiedź w formacie JSON: 
+"{
+  "brand": "Brand",
+  "model": "Model",
+  "year": 2023
+}"
+
+GET:
+Przykład: http://localhost:8080/test/hello/HelloFromPathVariable //HelloFromPathVariable -> tutaj wpisujemy co chcemy wyświetlić
+Odpowiedź: "HelloFromPathVariable"
+
+GET:
+Przykład: http://localhost:8080/test/hello/?reqParam=reqParam-fafafa //reqParam-fafafa -> tutaj wpisujemy co chcemy wyświetlić jako parametr/paramerty
+Odpowiedź: "reqParam-fafafa"
+
+POST:
+Przykład: http://localhost:8080/test/model
+Body w formacie JSON - Body -> Raw -> JSON: //Wpisujemy co chcemy wypisać
+{
+  "brand": "Brand",
+  "model": "Model",
+  "year": 2023
+}
+Odpowiedź: 
+"{
+  "brand": "Brand",
+  "model": "Model",
+  "year": 2023
+}"
+
+//ExceptionHandler
+GET:
+Przykład: http://localhost:8080/test/exception?errorMessage=TestError -> //TestError - tutaj wpisujemy co chcemy wyświetlić jako parametr/paramerty błędu
+Odpowiedź: "Exception occured on reques. Exception message: TestError"
