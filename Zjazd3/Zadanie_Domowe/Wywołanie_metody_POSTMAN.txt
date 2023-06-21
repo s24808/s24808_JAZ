@@ -1,0 +1,21 @@
+GET:
+Przykład: http://localhost:8080/homework/info/someParam
+Odpowiedź: "Info from PathVariable: someParam"
+
+GET:
+Przykład: http://localhost:8080/homework/info?param=someParam
+Odpowiedź: "Info from PathVariable: someParam"
+
+PUT:
+Przykład: http://localhost:8080/homework/data/1
+Body: "Updated Data" //Body -> Raw -> "Updated Data"
+Odpowiedź: "Data updated for ID: 1, Data: Updated Data"
+
+POST:
+Przykład: http://localhost:8080/homework/data
+Body: "New Data" //Body -> Raw -> "New Data"
+Odpowiedź: "Data created: New Data"
+
+DELETE:
+Przykład: http://localhost:8080/homework/data/1
+Odpowiedź: Status HTTP 200 (OK), bez ciała odpowiedzi
