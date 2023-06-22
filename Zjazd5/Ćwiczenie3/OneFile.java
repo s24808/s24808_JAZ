@@ -16,7 +16,12 @@ public class Movie {
 
     @Column(name = "category")
     private String category;
-    // Konstruktory, gettery i settery
+
+    public Movie() {
+        
+    }
+
+    // Getters and Setters
 
     public int getId() {
         return id;
@@ -42,14 +47,21 @@ public class Movie {
         this.category = category;
     }
 
-    // Dodaj gettery i settery dla innych pól
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", category='" + category + '\'' +
+                '}';
+    }
 }
 
 //Klasa MovieRepository
 
 package pl.pjatk.MovieService.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 import pl.pjatk.MovieService.model.Movie;
 
@@ -88,17 +100,17 @@ public class MovieService {
         return movieRepository.save(movie);
     }
 
+    public Movie updateMovie(Movie movie) {
+        return movieRepository.save(movie);
+    }
+
     public boolean deleteMovie(int id) {
-        if (movieRepository.existsById(id)) {
-            movieRepository.deleteById(id);
-            return true;
-        } else {
-            return false;
-        }
+        movieRepository.deleteById(id);
+        return false;
     }
 }
 
-//Klasa Movie Controller
+//Klasa MovieController
 
 package pl.pjatk.MovieService;
 
@@ -167,12 +179,46 @@ package pl.pjatk.MovieService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import pl.pjatk.MovieService.model.Movie;
+import pl.pjatk.MovieService.service.MovieService;
+import java.util.List;
 
 @SpringBootApplication
 public class MovieServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MovieServiceApplication.class, args);
-	}
 
+		ApplicationContext context = SpringApplication.run(MovieServiceApplication.class, args);
+		MovieService movieService = context.getBean(MovieService.class);
+
+		// Wywołanie metod w MovieService
+
+		//Wyświetlenie wszystkich filmów z listy
+		List<Movie> movies = movieService.getAllMovies();
+		System.out.println("Wszystkie filmy: " + movies);
+
+		//Wyświetlenie filmu o id 1
+		Movie movie = movieService.getMovieById(1);
+		System.out.println("Film o ID 1: " + movie);
+
+		//Dodanie filmu jako rekordu w bazie
+		Movie newMovie = new Movie();
+		newMovie.setName("Nowy film");
+		newMovie.setCategory("Akcja");
+		Movie addedMovie = movieService.addMovie(newMovie);
+		System.out.println("Dodany film: " + addedMovie);
+
+		//Zmiana rekordu w bazie
+		Movie updatedMovie = new Movie();
+		updatedMovie.setId(1);
+		updatedMovie.setName("Zaktualizowany film");
+		updatedMovie.setCategory("Komedia");
+		Movie updatedMovieResult = movieService.updateMovie(updatedMovie);
+		System.out.println("Zaktualizowany film: " + updatedMovieResult);
+
+		//Usuwanie rekordu z bazy
+		movieService.deleteMovie(4);
+		System.out.println("Film o ID 4 został usunięty");
+	}
 }
