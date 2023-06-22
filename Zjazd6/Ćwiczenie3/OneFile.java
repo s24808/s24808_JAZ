@@ -52,85 +52,69 @@ public class Movie {
     }
 }
 
-//Klasa MovieController
+//Klasa RentalController
 
 package pl.pjatk.RentalService.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import pl.pjatk.RentalService.model.Movie;
-import pl.pjatk.RentalService.service.MovieService;
 
 @RestController
-@RequestMapping("/movies")
-public class MovieController {
+@RequestMapping("/rentals")
+public class RentalController {
 
-    private final MovieService movieService;
+    private final RestTemplate restTemplate;
 
-    @Autowired
-    public MovieController(MovieService movieService) {
-        this.movieService = movieService;
+    public RentalController(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
+    // Dodatkowe metody kontrolera
     @GetMapping("/{id}")
-    public ResponseEntity<Movie> getMovie(@PathVariable Long id) {
-        // Wywołanie REST do MovieService, pobranie filmu po ID
-        Movie movie = movieService.getMovie(id);
-        if (movie != null) {
-            return ResponseEntity.ok(movie);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public Movie getMovie(@PathVariable Long id) {
+        String url = "http://localhost:8080/movies/" + id;
+        return restTemplate.getForObject(url, Movie.class);
     }
 
-    @GetMapping("/return/{id}")
+    @PostMapping("/{id}/return")
     public ResponseEntity<String> returnMovie(@PathVariable Long id) {
-        // Wywołanie REST do MovieService, zmiana wartości pola is_available na true
-        boolean success = movieService.returnMovie(id);
-        if (success) {
-            return ResponseEntity.ok("Movie with ID " + id + " returned successfully");
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        String url = "http://localhost:8080/movies/" + id + "/return";
+        restTemplate.postForObject(url, null, Void.class);
+        return ResponseEntity.ok("Movie returned successfully");
     }
+
 }
 
-
-//Klasa MovieService
+//Klasa RentalService
 
 package pl.pjatk.RentalService.service;
 
-import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pl.pjatk.RentalService.model.Movie;
 
 @Service
-public class MovieService {
+public class RentalService {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
-    public MovieService(RestTemplate restTemplate) {
+    public RentalService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
+    // Dodatkowe metody serwisu
     public Movie getMovie(Long id) {
-        // Wywołanie REST do MovieService, pobranie filmu po ID
         String url = "http://localhost:8080/movies/" + id;
         return restTemplate.getForObject(url, Movie.class);
     }
 
-    public boolean returnMovie(Long id) {
-        // Wywołanie REST do MovieService, zmiana wartości pola is_available na true
-        String url = "http://localhost:8080/movies/return/" + id;
-        restTemplate.put(url, null);
-        return true;
+    public void returnMovie(Long id) {
+        String url = "http://localhost:8080/movies/" + id + "/return";
+        restTemplate.postForObject(url, null, Void.class);
     }
 }
-
 
 //Main Application
 
@@ -152,7 +136,6 @@ public class RentalServiceApplication {
 	public RestTemplate restTemplate() {
 		return new RestTemplate();
 	}
-
 }
 
 //application.properties
