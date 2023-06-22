@@ -6,17 +6,21 @@ public class Movie {
     private int id;
     private String name;
     private String category;
+    private boolean isAvailable = false;
 
     public Movie() {
+
     }
 
-    public Movie(int id, String name, String category) {
+    public Movie(int id, String name, String category, boolean isAvailable) {
         this.id = id;
         this.name = name;
         this.category = category;
+        this.isAvailable = isAvailable;
     }
 
     // Gettery i settery
+
 
     public int getId() {
         return id;
@@ -42,12 +46,21 @@ public class Movie {
         this.category = category;
     }
 
+    public boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public void setAvailable(boolean available) {
+        isAvailable = available;
+    }
+
     @Override
     public String toString() {
         return "Movie{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", category='" + category + '\'' +
+                ", isAvailable=" + isAvailable +
                 '}';
     }
 }
@@ -56,35 +69,37 @@ public class Movie {
 
 package pl.pjatk.RentalService.controller;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import pl.pjatk.RentalService.model.Movie;
+import pl.pjatk.RentalService.service.RentalService;
 
 @RestController
-@RequestMapping("/rentals")
+@RequestMapping("/rental")
 public class RentalController {
 
     private final RestTemplate restTemplate;
+    private final RentalService rentalService;
 
-    public RentalController(RestTemplate restTemplate) {
+    @Autowired
+    public RentalController(RestTemplate restTemplate, RentalService rentalService) {
         this.restTemplate = restTemplate;
+        this.rentalService = rentalService;
     }
 
-    // Dodatkowe metody kontrolera
-    @GetMapping("/{id}")
+    @GetMapping("/movies/{id}")
     public Movie getMovie(@PathVariable Long id) {
-        String url = "http://localhost:8080/movies/" + id;
-        return restTemplate.getForObject(url, Movie.class);
+        String movieServiceUrl = "http://localhost:8080/movies/" + id;
+        return restTemplate.getForObject(movieServiceUrl, Movie.class);
     }
 
-    @PostMapping("/{id}/return")
-    public ResponseEntity<String> returnMovie(@PathVariable Long id) {
-        String url = "http://localhost:8080/movies/" + id + "/return";
-        restTemplate.postForObject(url, null, Void.class);
-        return ResponseEntity.ok("Movie returned successfully");
+    @PutMapping("/movies/{id}/return")
+    public Movie returnMovie(@PathVariable int id) {
+        String movieServiceUrl = "http://localhost:8080/movies/" + id + "/availability";
+        return restTemplate.exchange(movieServiceUrl, HttpMethod.PUT, null, Movie.class).getBody();
     }
-
 }
 
 //Klasa RentalService
@@ -92,27 +107,15 @@ public class RentalController {
 package pl.pjatk.RentalService.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import pl.pjatk.RentalService.model.Movie;
 
 @Service
 public class RentalService {
 
-    private final RestTemplate restTemplate;
-
-    public RentalService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
-
-    // Dodatkowe metody serwisu
-    public Movie getMovie(Long id) {
-        String url = "http://localhost:8080/movies/" + id;
-        return restTemplate.getForObject(url, Movie.class);
-    }
-
-    public void returnMovie(Long id) {
-        String url = "http://localhost:8080/movies/" + id + "/return";
-        restTemplate.postForObject(url, null, Void.class);
+    public void updateAvailability(Long id) {
+        // Logika aktualizacji dostępności filmu w systemie RentalService
+        // Możesz zaimplementować tutaj odpowiednie operacje na danych lub wywołać inny serwis
+        // w celu zaktualizowania dostępności filmu.
     }
 }
 
@@ -122,7 +125,7 @@ package pl.pjatk.RentalService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
