@@ -11,16 +11,29 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(nullable = false)
+    @Column(name = "name")
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "category")
     private String category;
 
-    @Column(nullable = false)
-    private boolean isAvailable;
+    @Column(name = "is_available")
+    private boolean isAvailable = false;
+
+    public Movie() {
+        
+    }
 
     // Getters and Setters
+
+
+    public boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public void setAvailable(boolean available) {
+        isAvailable = available;
+    }
 
     public int getId() {
         return id;
@@ -46,12 +59,15 @@ public class Movie {
         this.category = category;
     }
 
-    public boolean isAvailable() {
-        return isAvailable;
-    }
 
-    public void setAvailable(boolean available) {
-        isAvailable = available;
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", category='" + category + '\'' +
+                ", isAvailable=" + isAvailable +
+                '}';
     }
 }
 
@@ -62,27 +78,24 @@ package pl.pjatk.MovieService.repository;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import java.util.List;
 import pl.pjatk.MovieService.model.Movie;
 
 @Repository
 public interface MovieRepository extends JpaRepository<Movie, Integer> {
-    List<Movie> findAllByNameContainingIgnoreCase(String name);
-    List<Movie> findAllByCategory(String category);
 
-    @Query("SELECT m FROM Movie m WHERE m.name LIKE %:keyword% OR m.category LIKE %:keyword%")
-    List<Movie> searchByKeyword(@Param("keyword") String keyword);
+    @Modifying
+    @Query("UPDATE Movie m SET m.isAvailable = true WHERE m.id = :id")
+    void updateAvailability(@Param("id") int id);
 
-    @Query("SELECT m FROM Movie m WHERE m.isAvailable = true")
-    List<Movie> findAllAvailableMovies();
+    // Pozostałe metody związane z dostępem do danych
 }
-
 
 //Klasa MovieService
 
 package pl.pjatk.MovieService.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.pjatk.MovieService.model.Movie;
 import pl.pjatk.MovieService.repository.MovieRepository;
 
@@ -108,18 +121,21 @@ public class MovieService {
         return movieRepository.save(movie);
     }
 
-    public boolean deleteMovie(int id) {
-        if (movieRepository.existsById(id)) {
-            movieRepository.deleteById(id);
-            return true;
-        } else {
-            return false;
-        }
+    public Movie updateMovie(Movie movie) {
+        return movieRepository.save(movie);
     }
-    public void updateMovie(Movie movie) {
-        movieRepository.save(movie);
+
+    public boolean deleteMovie(int id) {
+        movieRepository.deleteById(id);
+        return false;
+    }
+
+    @Transactional
+    public void updateAvailability(int id) {
+        movieRepository.updateAvailability(id);
     }
 }
+
 
 //Klasa MovieController
 
@@ -183,12 +199,12 @@ public class MovieController {
         }
     }
 
-    @PutMapping("/{id}/available")
-    public ResponseEntity<Movie> markMovieAsAvailable(@PathVariable int id) {
+    @PutMapping("/{id}/availability")
+    public ResponseEntity<Movie> updateAvailability(@PathVariable int id) {
         Movie movie = movieService.getMovieById(id);
         if (movie != null) {
+            movieService.updateAvailability(id);
             movie.setAvailable(true);
-            movieService.updateMovie(movie);
             return ResponseEntity.ok(movie);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -202,12 +218,49 @@ package pl.pjatk.MovieService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import pl.pjatk.MovieService.model.Movie;
+import pl.pjatk.MovieService.service.MovieService;
+import java.util.List;
 
 @SpringBootApplication
 public class MovieServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MovieServiceApplication.class, args);
-	}
 
+		ApplicationContext context = SpringApplication.run(MovieServiceApplication.class, args);
+		MovieService movieService = context.getBean(MovieService.class);
+
+		// Wywołanie metod w MovieService:
+
+		// Ustawienie dostępności filmu o id 1 na true
+		movieService.updateAvailability(1);
+
+		//Wyświetlenie wszystkich filmów z listy
+		List<Movie> movies = movieService.getAllMovies();
+		System.out.println("Wszystkie filmy: " + movies);
+
+		//Wyświetlenie filmu o id 1
+		Movie movie = movieService.getMovieById(1);
+		System.out.println("Film o ID 1: " + movie);
+
+		//Dodanie filmu jako rekordu w bazie
+		Movie newMovie = new Movie();
+		newMovie.setName("Nowy film");
+		newMovie.setCategory("Akcja");
+		Movie addedMovie = movieService.addMovie(newMovie);
+		System.out.println("Dodany film: " + addedMovie);
+
+		//Zmiana rekordu w bazie
+		Movie updatedMovie = new Movie();
+		updatedMovie.setId(2);
+		updatedMovie.setName("Zaktualizowany film");
+		updatedMovie.setCategory("Komedia");
+		Movie updatedMovieResult = movieService.updateMovie(updatedMovie);
+		System.out.println("Zaktualizowany film: " + updatedMovieResult);
+
+		//Usuwanie rekordu z bazy
+		movieService.deleteMovie(4);
+		System.out.println("Film o ID 4 został usunięty");
+	}
 }
