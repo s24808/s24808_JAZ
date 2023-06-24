@@ -2,22 +2,26 @@
 
 package pl.pjatk.MovieService.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "movies")
+@Schema(description = "Movie entity")
 public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "Movie ID")
     private int id;
-
+    @Schema(description = "Movie title")
     @Column(name = "name")
     private String name;
-
+    @Schema(description = "Movie category")
     @Column(name = "category")
     private String category;
 
     @Column(name = "is_available")
+    @Schema(description = "Movie availability")
     private boolean isAvailable = false;
 
     public Movie() {
