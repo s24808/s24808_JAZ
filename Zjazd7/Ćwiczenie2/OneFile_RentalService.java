@@ -2,10 +2,18 @@
 
 package pl.pjatk.RentalService.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.http.HttpStatusCode;
+
+@Schema(description = "Movie entity")
 public class Movie {
+    @Schema(description = "Movie ID")
     private int id;
+    @Schema(description = "Movie title")
     private String name;
+    @Schema(description = "Movie category")
     private String category;
+    @Schema(description = "Movie availability")
     private boolean isAvailable = false;
 
     public Movie() {
