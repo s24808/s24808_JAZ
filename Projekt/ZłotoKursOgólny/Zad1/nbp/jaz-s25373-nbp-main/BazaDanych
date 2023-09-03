@@ -1,0 +1,3 @@
+Kod tworzący bare danych na xamppie:
+CREATE TABLE `java`.`java` (`ID` INT(255) NOT NULL AUTO_INCREMENT , `walutę` VARCHAR(255) NOT NULL , `DATE_START` DATE NOT NULL , `DATE_END` DATE NOT NULL , `WYNIK`  NOT NULL , `DATA_ZAPISU` DATE NOT NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;
+Na mailu zostało dołączone zdjęcie wyglądu bazy danych
