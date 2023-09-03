@@ -83,6 +83,14 @@ public class CurrencyQuery {
 
 //Klasa CurrencyType
 
+package pl.pjatk.nbp.model;
+
+public enum CurrencyType {
+    EUR, USD
+}
+
+//Klasa Controller
+
 package pl.pjatk.nbp.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
